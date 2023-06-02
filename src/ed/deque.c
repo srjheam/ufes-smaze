@@ -4,6 +4,7 @@
 #include "types.h"
 
 // Of course I didn't have any idea of the chunk size
+// https://stackoverflow.com/q/57031917/12511877
 // https://stackoverflow.com/a/4089128/12511877
 #define _DEQUE_CHUNKSIZ(_smemb)                                                \
     (_smemb <= 1   ? 16                                                        \
