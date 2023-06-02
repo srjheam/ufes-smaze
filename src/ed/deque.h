@@ -2,12 +2,14 @@
 #ifndef _DEQUE_H_
 #define _DEQUE_H_
 
+#include "stdlib.h"
+
 typedef struct Deque Deque;
 
 // criacao do deque
-Deque *deque_construct(void);
+Deque *deque_construct(size_t smemb);
 
-// funcoes para insercao na direita e esquerda (devem ser feitas em O(1), com eventual realloc)
+// funcoes para insercao na d--ireita e esquerda (devem ser feitas em O(1), com eventual realloc)
 void deque_push_back(Deque *d, void *val);
 void deque_push_front(Deque *d, void *val);
 
