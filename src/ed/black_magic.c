@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 // https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
+// understandable have a great day
 int log2_pow2(unsigned int v)
 {
     static const int MultiplyDeBruijnBitPosition2[32] = {
