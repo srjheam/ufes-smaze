@@ -16,13 +16,42 @@
 
 #define _DEQUE_CHUNKINI 4
 
+#define _DEQUE_LCHUNK_COMPLEMENT_BLEN(_d) (_d->lback - _d->lchunk[0])
+#define _DEQUE_LCHUNK_BLEN(_d) (_DEQUE_CHUNKSIZ(_d->smemb) - _DEQUE_LCHUNK_COMPLEMENT_BLEN(_d))
+
+#define _DEQUE_HCHUNK_BLEN(_d) (_d->lchunk[_d->nchunks - 1] - _d->hfront)
+#define _DEQUE_HCHUNK_COMPLEMENT_BLEN(_d) (_DEQUE_CHUNKSIZ(_d->smemb) - _DEQUE_HCHUNK_BLEN(_d))
+
+//
+// e.g
+//
+//    hfront
+//    |
+//    V
+// * **
+// * ****
+// * ****
+// * ****
+// * ****
+// * ****
+// * ****
+// *  ***
+// ^  ^
+// |  |
+// |  lback
+// lchunk
+//
+// nchunks = 8
+// smemb = 4
+// _DEQUE_BLOCKSIZ(smemb) = 4
+//
 struct Deque {
     byte **chunks;            /// array of chunks
-    byte **fchunk;            /// first chunk
+    byte **lchunk;            /// low chunk
     int nchunks;              /// number of chunks
     int capacity;             /// capacity of chunks array
-    byte *front;              /// pointer to the front element
-    byte *back;               /// pointer to the back element
+    byte *hfront;              /// pointer to the front, high element
+    byte *lback;               /// pointer to the back, low element
     size_t smemb;             /// size of each element
     destructor_fn destructor; /// function to destroy each element
 };
@@ -35,10 +64,10 @@ Deque *deque_construct(size_t smemb, destructor_fn destructor) {
     d->nchunks = 0;
     d->capacity = _DEQUE_CHUNKINI;
     d->chunks = malloc(sizeof(byte *) * d->capacity);
-    d->fchunk = malloc(sizeof(byte) * smemb * _DEQUE_CHUNKSIZ(smemb));
-    d->chunks[d->capacity >> 1] = d->fchunk;
-    d->front = d->fchunk;
-    d->back = d->fchunk;
+    d->lchunk = malloc(sizeof(byte) * smemb * _DEQUE_CHUNKSIZ(smemb));
+    d->chunks[d->capacity >> 1] = d->lchunk;
+    d->hfront = d->lchunk;
+    d->lback = d->lchunk;
 
     d->destructor = destructor;
 
@@ -54,8 +83,7 @@ void *deque_pop_back(Deque *d) {}
 void *deque_pop_front(Deque *d) {}
 
 int deque_size(Deque *d) {
-    return d->nchunks * _DEQUE_CHUNKSIZ(d->smemb) +
-           (d->back - d->front) / d->smemb;
+    return d->nchunks * _DEQUE_CHUNKSIZ(d->smemb) - _DEQUE_LCHUNK_COMPLEMENT_BLEN(d) - _DEQUE_HCHUNK_COMPLEMENT_BLEN(d);
 }
 
 void *deque_get(Deque *d, int idx) {
@@ -63,19 +91,19 @@ void *deque_get(Deque *d, int idx) {
         return NULL;
 
     if (_DEQUE_CHUNKSIZ(d->smemb) == 1)
-        return d->fchunk[idx];
+        return d->lchunk[idx];
 
     // Stolen from
     // https://codereview.stackexchange.com/a/254925
 
     const int logsiz = log2_pow2(_DEQUE_CHUNKSIZ(d->smemb));
 
-    // position relative to the first chunk of the deque
-    int pos = log2_pow2(d->front - d->fchunk) + idx;
-    byte *tchunk = d->fchunk[pos >> logsiz << 3];
-    byte *telem = tchunk + (pos & (_DEQUE_CHUNKSIZ(d->smemb) - 1)) << logsiz;
+    // position relative to the low chunk of the deque
+    int pos = log2_pow2(_DEQUE_LCHUNK_COMPLEMENT_BLEN(d)) + idx;
+    byte **tchunk = d->lchunk[pos >> logsiz];
+    int telem = pos & (_DEQUE_CHUNKSIZ(d->smemb) - 1);
 
-    return d->chunks[d->front + ichunk][ielem];
+    return tchunk[telem];
 }
 
 void *deque_iterator_forward(Deque *d, int *saveptr) {
