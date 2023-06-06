@@ -6,10 +6,14 @@
 
 typedef struct Stack Stack;
 
-Stack *stack_construct();
+Stack *stack_construct(size_t smemb, copy_fn copy, destructor_fn destructor);
+
 void stack_push(Stack *stack, void *data);
+
 bool stack_empty(Stack *stack);
+
 void *stack_pop(Stack *stack);
+
 void stack_destroy(Stack *stack);
 
 #endif

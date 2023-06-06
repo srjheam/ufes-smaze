@@ -50,15 +50,16 @@
 struct Deque {
     byte **chunks;            /// array of chunks
     byte **lchunk;            /// low chunk
-    int nchunks;              /// number of chunks
-    int capacity;             /// capacity of chunks array
+    size_t nchunks;           /// number of chunks
+    size_t capacity;          /// capacity of chunks array
     byte *hfront;             /// pointer to the front, high element
     byte *lback;              /// pointer to the back, low element
     size_t smemb;             /// size of each element
     destructor_fn destructor; /// function to destroy each element
+    copy_fn copy;             /// function to copy each element
 };
 
-Deque *deque_construct(size_t smemb, destructor_fn destructor) {
+Deque *deque_construct(size_t smemb, copy_fn copy, destructor_fn destructor) {
     Deque *d = malloc(sizeof *d);
 
     d->smemb = smemb;
@@ -72,6 +73,7 @@ Deque *deque_construct(size_t smemb, destructor_fn destructor) {
     d->lback = d->lchunk;
 
     d->destructor = destructor;
+    d->copy = copy;
 
     return d;
 }
@@ -85,6 +87,9 @@ void *deque_pop_back(Deque *d) {}
 void *deque_pop_front(Deque *d) {}
 
 int deque_size(Deque *d) {
+    if (d->nchunks == 0)
+        return 0;
+
     return d->nchunks * _DEQUE_CHUNKSIZ(d->smemb) -
            _DEQUE_LCHUNK_COMPLEMENT_BLEN(d) - _DEQUE_HCHUNK_COMPLEMENT_BLEN(d);
 }

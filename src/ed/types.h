@@ -2,9 +2,11 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-typedef void (*destructor_fn)(void *);
+#include <stdbool.h>
 
-typedef unsigned char bool;
+typedef void (*destructor_fn)(void *);
+typedef void *(*copy_fn)(void *);
+
 typedef unsigned char byte;
 
 #endif
