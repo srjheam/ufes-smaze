@@ -17,10 +17,12 @@
 #define _DEQUE_CHUNKINI 4
 
 #define _DEQUE_LCHUNK_COMPLEMENT_BLEN(_d) (_d->lback - _d->lchunk[0])
-#define _DEQUE_LCHUNK_BLEN(_d) (_DEQUE_CHUNKSIZ(_d->smemb) - _DEQUE_LCHUNK_COMPLEMENT_BLEN(_d))
+#define _DEQUE_LCHUNK_BLEN(_d)                                                 \
+    (_DEQUE_CHUNKSIZ(_d->smemb) - _DEQUE_LCHUNK_COMPLEMENT_BLEN(_d))
 
 #define _DEQUE_HCHUNK_BLEN(_d) (_d->lchunk[_d->nchunks - 1] - _d->hfront)
-#define _DEQUE_HCHUNK_COMPLEMENT_BLEN(_d) (_DEQUE_CHUNKSIZ(_d->smemb) - _DEQUE_HCHUNK_BLEN(_d))
+#define _DEQUE_HCHUNK_COMPLEMENT_BLEN(_d)                                      \
+    (_DEQUE_CHUNKSIZ(_d->smemb) - _DEQUE_HCHUNK_BLEN(_d))
 
 //
 // e.g
@@ -50,8 +52,8 @@ struct Deque {
     byte **lchunk;            /// low chunk
     int nchunks;              /// number of chunks
     int capacity;             /// capacity of chunks array
-    byte *hfront;              /// pointer to the front, high element
-    byte *lback;               /// pointer to the back, low element
+    byte *hfront;             /// pointer to the front, high element
+    byte *lback;              /// pointer to the back, low element
     size_t smemb;             /// size of each element
     destructor_fn destructor; /// function to destroy each element
 };
@@ -83,7 +85,8 @@ void *deque_pop_back(Deque *d) {}
 void *deque_pop_front(Deque *d) {}
 
 int deque_size(Deque *d) {
-    return d->nchunks * _DEQUE_CHUNKSIZ(d->smemb) - _DEQUE_LCHUNK_COMPLEMENT_BLEN(d) - _DEQUE_HCHUNK_COMPLEMENT_BLEN(d);
+    return d->nchunks * _DEQUE_CHUNKSIZ(d->smemb) -
+           _DEQUE_LCHUNK_COMPLEMENT_BLEN(d) - _DEQUE_HCHUNK_COMPLEMENT_BLEN(d);
 }
 
 void *deque_get(Deque *d, int idx) {
