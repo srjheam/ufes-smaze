@@ -13,8 +13,41 @@ void __heap_grow(Heap *heap) {
     }
 }
 
-int __heap_cmp(Heap *heap, double a, double b) {
+double __heap_cmp(Heap *heap, double a, double b) {
     return heap->ascending ? b - a : a - b;
+}
+
+void __heap_swap(Heap *heap, size_t i, size_t j) {
+    size_t lindx = 2 * i + 1;
+    size_t rindx = 2 * i + 2;
+
+    double pp = heap->priorities[i];
+    double pl = lindx < heap->len ? heap->priorities[lindx] : 0;
+    double pr = rindx < heap->len ? heap->priorities[rindx] : 0;
+
+    void *tmp = malloc(heap->smemb);
+    memcpy(tmp, heap->data + i * heap->smemb, heap->smemb);
+    memcpy(heap->data + i * heap->smemb, heap->data + j * heap->smemb,
+           heap->smemb);
+    free(tmp);
+
+    heap->priorities[i] =
+        (lindx < heap->len && __heap_cmp(heap, pp, pl) < 0) ? pl : pr;
+    heap->priorities[j] = pp;
+}
+
+bool __heap_heapify_high(Heap *heap, size_t i) {
+    size_t lindx = 2 * i + 1;
+    size_t rindx = 2 * i + 2;
+
+    double pp = heap->priorities[i];
+    double pl = lindx < heap->len ? heap->priorities[lindx] : 0;
+    double pr = rindx < heap->len ? heap->priorities[rindx] : 0;
+
+    double ldiff = lindx < heap->len ? __heap_cmp(heap, pp, pl) : 0;
+    double rdiff = rindx < heap->len ? __heap_cmp(heap, pp, pr) : 0;
+
+    return ldiff > rdiff ? ldiff * -1 : rdiff;
 }
 
 void __heap_heapify_up(Heap *heap) {
@@ -22,78 +55,25 @@ void __heap_heapify_up(Heap *heap) {
         return;
 
     size_t icurr = (heap->len >> 1) - 1;
-    size_t lindx = 2 * icurr + 1;
-    size_t rindx = 2 * icurr + 2;
+    while (__heap_heapify_high(heap, icurr)) {
+        size_t ichild =
+            2 * icurr + __heap_heapify_high(heap, icurr) < 0 ? 1 : 2;
 
-    double pp = heap->priorities[icurr];
-    double pl = heap->priorities[lindx];
-    double pr = heap->priorities[rindx];
-
-    while (icurr > 0 || __heap_cmp(heap, pp, pl) < 0 ||
-           __heap_cmp(heap, pp, pr) < 0) {
-        if (__heap_cmp(heap, pp, pl) < 0 || __heap_cmp(heap, pp, pr)) {
-            size_t ichild = __heap_cmp(heap, pp, pl) < 0 ? lindx : rindx;
-
-            void *tmp = malloc(heap->smemb);
-            memcpy(tmp, heap->data + icurr * heap->smemb, heap->smemb);
-            memcpy(heap->data + icurr * heap->smemb,
-                   heap->data + ichild * heap->smemb, heap->smemb);
-            free(tmp);
-
-            heap->priorities[icurr] = __heap_cmp(heap, pp, pl) < 0 ? pl : pr;
-            heap->priorities[ichild] = pp;
-        } else
-            break;
+        __heap_swap(heap, icurr, ichild);
 
         icurr = ((icurr + 1) >> 1) - 1;
-        lindx = 2 * icurr + 1;
-        rindx = 2 * icurr + 2;
-
-        pp = heap->priorities[icurr];
-        pl = heap->priorities[lindx];
-        pr = heap->priorities[rindx];
     }
 }
 
 void __heap_heapify_down(Heap *heap) {
-    if (heap->len <= 1)
-        return;
-
     size_t icurr = 0;
-    size_t lindx = 2 * icurr + 1;
-    size_t rindx = 2 * icurr + 2;
+    while (__heap_heapify_high(heap, icurr)) {
+        size_t ichild =
+            2 * icurr + __heap_heapify_high(heap, icurr) < 0 ? 1 : 2;
 
-    double pp = heap->priorities[icurr];
-    double pl = lindx < heap->len ? heap->priorities[lindx] : 0;
-    double pr = lindx < heap->len ? heap->priorities[rindx] : 0;
+        __heap_swap(heap, icurr, ichild);
 
-    while (icurr != heap->len - 1 ||
-           (lindx < heap->len && __heap_cmp(heap, pp, pl) < 0) ||
-           (rindx < heap->len && __heap_cmp(heap, pp, pr) < 0)) {
-        if ((lindx < heap->len && __heap_cmp(heap, pp, pl) < 0) ||
-            (rindx < heap->len && __heap_cmp(heap, pp, pr))) {
-            size_t ichild = (lindx < heap->len && __heap_cmp(heap, pp, pl)) < 0
-                                ? lindx
-                                : rindx;
-
-            void *tmp = malloc(heap->smemb);
-            memcpy(tmp, heap->data + icurr * heap->smemb, heap->smemb);
-            memcpy(heap->data + icurr * heap->smemb,
-                   heap->data + ichild * heap->smemb, heap->smemb);
-            free(tmp);
-
-            heap->priorities[icurr] =
-                (lindx < heap->len && __heap_cmp(heap, pp, pl) < 0) ? pl : pr;
-            heap->priorities[ichild] = pp;
-        } else
-            break;
-
-        lindx = 2 * icurr + 1;
-        rindx = 2 * icurr + 2;
-
-        pp = heap->priorities[icurr];
-        pl = heap->priorities[lindx];
-        pr = heap->priorities[rindx];
+        icurr = ichild;
     }
 }
 
