@@ -14,7 +14,7 @@ void heap_push(Heap *heap, void *data, double priority);
 
 bool heap_empty(Heap *heap);
 
-void *heap_max(Heap *heap);
+void *heap_peek(Heap *heap);
 
 double heap_max_priority(Heap *heap);
 
