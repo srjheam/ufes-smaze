@@ -64,13 +64,14 @@ Deque *deque_construct(size_t smemb, copy_fn copy, destructor_fn destructor) {
 
     d->smemb = smemb;
 
-    d->nchunks = 0;
+    d->nchunks = 1;
     d->capacity = _DEQUE_CHUNKINI;
-    d->chunks = malloc(sizeof(byte *) * d->capacity);
-    d->lchunk = malloc(sizeof(byte) * smemb * _DEQUE_CHUNKSIZ(smemb));
-    d->chunks[d->capacity >> 1] = d->lchunk;
-    d->hfront = d->lchunk;
-    d->lback = d->lchunk;
+    d->chunks = malloc(__SIZEOF_POINTER__ * d->capacity);
+    d->chunks[d->capacity >> 1] =
+        malloc(sizeof(byte) * smemb * _DEQUE_CHUNKSIZ(smemb));
+    d->lchunk = d->chunks + (d->capacity >> 1) * __SIZEOF_POINTER__;
+    d->hfront = d->lchunk[0];
+    d->lback = d->lchunk[0];
 
     d->destructor = destructor;
     d->copy = copy;
@@ -82,9 +83,29 @@ void deque_push_back(Deque *d, void *val) {}
 
 void deque_push_front(Deque *d, void *val) {}
 
-void *deque_pop_back(Deque *d) {}
+void *deque_pop_back(Deque *d) {
+    if (deque_size(d) == 0)
+        return NULL;
+}
 
-void *deque_pop_front(Deque *d) {}
+void *deque_pop_front(Deque *d) {
+    if (deque_size(d) == 0)
+        return NULL;
+
+    void *ret = d->copy(d->hfront);
+    d->destructor(d->hfront);
+
+    if (d->lchunk[0] != d->chunks[0] && _DEQUE_HCHUNK_BLEN(d) > 0) {
+        d->hfront -= d->smemb;
+        free(d->lchunk + (d->nchunks - 1) * __SIZEOF_POINTER__);
+        d->lchunk--;
+        d->nchunks--;
+        d->hfront = d->lchunk[d->nchunks - 1] +
+                    (_DEQUE_CHUNKSIZ(d->smemb) - 1) * d->smemb;
+    }
+
+    return ret;
+}
 
 int deque_size(Deque *d) {
     if (d->nchunks == 0)
