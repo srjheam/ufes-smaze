@@ -4,6 +4,19 @@
 
 #define _HEAP_SIZINI 4
 
+// Maybe the heap should be implemented as a segmented array, like the deque.
+struct Heap {
+    void *data;
+    double *priorities;
+    size_t capacity;
+    size_t len;
+
+    bool ascending;
+    size_t smemb;
+    copy_fn copy;
+    destructor_fn destructor;
+};
+
 void __heap_grow(Heap *heap) {
     if (heap->len == heap->capacity) {
         heap->capacity <<= 1;
@@ -76,19 +89,6 @@ void __heap_heapify_down(Heap *heap) {
         icurr = ichild;
     }
 }
-
-// Maybe the heap should be implemented as a segmented array, like the deque.
-struct Heap {
-    void *data;
-    double *priorities;
-    size_t capacity;
-    size_t len;
-
-    bool ascending;
-    size_t smemb;
-    copy_fn copy;
-    destructor_fn destructor;
-};
 
 Heap *heap_construct(bool ascending, size_t smemb, copy_fn copy,
                      destructor_fn destructor) {
