@@ -1,3 +1,4 @@
 main
 *.a
 *.o
+valgrind-out.txt

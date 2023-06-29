@@ -1,3 +1,4 @@
+VALGRINDOUT = valgrind-out.txt
 
 FLAGS = -Wall -Wextra -Wno-unused-result -Wno-unused-parameter -g
 
@@ -30,3 +31,14 @@ zip: clean
 run:
 	./main
 
+valgrind: all
+	rm -f $(VALGRINDOUT)
+
+	valgrind --leak-check=full \
+			 --show-leak-kinds=all \
+			 --track-origins=yes \
+			 --verbose \
+			 --log-file=$(VALGRINDOUT) \
+			 ./main
+
+	@echo "Head to $(VALGRINDOUT)"
