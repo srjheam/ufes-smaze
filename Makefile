@@ -23,6 +23,9 @@ main: main.c libed.a libsearch.a
 
 clean:
 	rm -f main libed.a libsearch.a $(LIBSEARCH_DEPS) $(LIBED_DEPS)
+
+zip: clean
+	zip -r jheam_ross_2022100890.zip .
 	
 run:
 	./main
