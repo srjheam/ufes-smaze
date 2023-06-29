@@ -120,7 +120,7 @@ void __deque_growth(Deque *d) {
     // chunks capacity everytime doesn't seem fine given that I may use the
     // deque always as a queue or as a stack and in this cases I'll be wasting
     // at least half of the memory
-    if (d->nchunks == d->capacity) {
+    if (d->nchunks >= d->capacity >> 1) {
         d->capacity <<= 1;
         d->chunks = realloc(d->chunks, __SIZEOF_POINTER__ * d->capacity);
     }
