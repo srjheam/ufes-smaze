@@ -7,10 +7,10 @@ struct Queue {
     Deque *deque;
 };
 
-Queue *queue_construct(size_t smemb, copy_fn copy, destructor_fn destructor) {
+Queue *queue_construct(size_t smemb, destructor_fn destructor) {
     Queue *queue = malloc(sizeof(Queue));
 
-    queue->deque = deque_construct(smemb, copy, destructor);
+    queue->deque = deque_construct(smemb, destructor);
 
     return queue;
 }

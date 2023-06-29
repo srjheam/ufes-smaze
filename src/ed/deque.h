@@ -8,7 +8,7 @@
 
 typedef struct Deque Deque;
 
-Deque *deque_construct(size_t smemb, copy_fn copy, destructor_fn destructor);
+Deque *deque_construct(size_t smemb, destructor_fn destructor);
 
 /**
  * @brief Pushes an element to the back of the deque.

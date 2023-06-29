@@ -6,7 +6,7 @@
 
 typedef struct Stack Stack;
 
-Stack *stack_construct(size_t smemb, copy_fn copy, destructor_fn destructor);
+Stack *stack_construct(size_t smemb, destructor_fn destructor);
 
 void stack_push(Stack *stack, void *data);
 

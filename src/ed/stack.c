@@ -6,10 +6,10 @@ struct Stack {
     Deque *deque;
 };
 
-Stack *stack_construct(size_t smemb, copy_fn copy, destructor_fn destructor) {
+Stack *stack_construct(size_t smemb, destructor_fn destructor) {
     Stack *stack = malloc(sizeof(Stack));
 
-    stack->deque = deque_construct(smemb, copy, destructor);
+    stack->deque = deque_construct(smemb, destructor);
 
     return stack;
 }

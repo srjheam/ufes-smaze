@@ -6,7 +6,7 @@
 
 typedef struct Queue Queue;
 
-Queue *queue_construct(size_t smemb, copy_fn copy, destructor_fn destructor);
+Queue *queue_construct(size_t smemb, destructor_fn destructor);
 
 void queue_push(Queue *queue, void *data);
 

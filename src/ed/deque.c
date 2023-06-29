@@ -109,7 +109,6 @@ struct Deque {
                  /// otherwise, it is NULL when there are no elements at all
     size_t smemb;             /// size of each element
     destructor_fn destructor; /// function to destroy each element
-    copy_fn copy;             /// function to copy each element
 };
 
 void __deque_growth(Deque *d) {
@@ -133,7 +132,7 @@ void __deque_growth(Deque *d) {
     d->lchunk = nlchunk;
 }
 
-Deque *deque_construct(size_t smemb, copy_fn copy, destructor_fn destructor) {
+Deque *deque_construct(size_t smemb, destructor_fn destructor) {
     Deque *d = malloc(sizeof *d);
 
     d->smemb = smemb;
@@ -147,7 +146,6 @@ Deque *deque_construct(size_t smemb, copy_fn copy, destructor_fn destructor) {
     d->lback = NULL;
 
     d->destructor = destructor;
-    d->copy = copy;
 
     return d;
 }
@@ -216,6 +214,13 @@ void *deque_pop_back(Deque *d) {
     if (d->destructor)
         d->destructor(d->lback);
 
+    int len = _DEQUE_LCHUNK_LEN(d);
+    int len2 = _DEQUE_LCHUNK_COMPLEMENT_LEN(d);
+    int len3 = _DEQUE_LCHUNK_COMPLEMENT_BSIZ(d);
+    int len4 = _DEQUE_LCHUNK_BSIZ(d);
+    int log = log2_pow2(d->smemb);
+    int len33 = (d->lback - d->lchunk[0]);
+
     if (_DEQUE_LCHUNK_LEN(d) == 1) {
         free(d->lchunk[0]);
         d->nchunks--;
@@ -247,8 +252,8 @@ void *deque_pop_front(Deque *d) {
         d->nchunks--;
 
         if (d->nchunks > 0) {
-            d->hfront = d->lchunk[d->nchunks - 1] + (_DEQUE_CHUNKSIZ(d->smemb) -
-                                                     d->smemb);
+            d->hfront = d->lchunk[d->nchunks - 1] +
+                        (_DEQUE_CHUNKSIZ(d->smemb) - d->smemb);
         } else {
             d->lback = NULL;
             d->hfront = NULL;
