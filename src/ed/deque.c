@@ -120,12 +120,15 @@ void __deque_growth(Deque *d) {
     // deque always as a queue or as a stack and in this cases I'll be wasting
     // at least half of the memory
     if (d->nchunks >= d->capacity >> 1) {
+        size_t diff = d->lchunk - d->chunks;
+
         d->capacity <<= 1;
         d->chunks = realloc(d->chunks, __SIZEOF_POINTER__ * d->capacity);
+        
+        d->lchunk = (byte **)((byte *)d->chunks + diff);
     }
 
-    byte **nlchunk =
-        d->chunks + ((d->capacity - d->nchunks) >> 1) * __SIZEOF_POINTER__;
+    byte **nlchunk = d->chunks + ((d->capacity - d->nchunks) >> 1);
 
     memmove(nlchunk, d->lchunk, d->nchunks * __SIZEOF_POINTER__);
 
@@ -139,9 +142,9 @@ Deque *deque_construct(size_t smemb, destructor_fn destructor) {
 
     d->nchunks = 0;
     d->capacity = _DEQUE_CHUNKINI;
-    d->chunks = calloc(1, __SIZEOF_POINTER__ * d->capacity);
+    d->chunks = malloc(__SIZEOF_POINTER__ * d->capacity);
 
-    d->lchunk = d->chunks + (d->capacity >> 1) * __SIZEOF_POINTER__;
+    d->lchunk = d->chunks + (d->capacity >> 1);
     d->hfront = NULL;
     d->lback = NULL;
 
@@ -214,23 +217,13 @@ void *deque_pop_back(Deque *d) {
     if (d->destructor)
         d->destructor(d->lback);
 
-    int len = _DEQUE_LCHUNK_LEN(d);
-    int len2 = _DEQUE_LCHUNK_COMPLEMENT_LEN(d);
-    int len3 = _DEQUE_LCHUNK_COMPLEMENT_BSIZ(d);
-    int len4 = _DEQUE_LCHUNK_BSIZ(d);
-    int log = log2_pow2(d->smemb);
-    int len33 = (d->lback - d->lchunk[0]);
-
-    if (_DEQUE_LCHUNK_LEN(d) == 1) {
+    if (_DEQUE_LCHUNK_LEN(d) == 1 || d->lback == d->hfront) {
         free(d->lchunk[0]);
         d->nchunks--;
 
         if (d->nchunks > 0) {
             d->lchunk++;
             d->lback = d->lchunk[0];
-        } else {
-            d->lback = NULL;
-            d->hfront = NULL;
         }
     } else
         d->lback += d->smemb;
@@ -247,17 +240,13 @@ void *deque_pop_front(Deque *d) {
     if (d->destructor)
         d->destructor(d->hfront);
 
-    if (_DEQUE_HCHUNK_LEN(d) == 1) {
+    if (_DEQUE_HCHUNK_LEN(d) == 1 || d->lback == d->hfront) {
         free(d->lchunk[d->nchunks - 1]);
         d->nchunks--;
 
-        if (d->nchunks > 0) {
+        if (d->nchunks > 0)
             d->hfront = d->lchunk[d->nchunks - 1] +
                         (_DEQUE_CHUNKSIZ(d->smemb) - d->smemb);
-        } else {
-            d->lback = NULL;
-            d->hfront = NULL;
-        }
     } else
         d->hfront -= d->smemb;
 
