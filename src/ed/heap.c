@@ -13,7 +13,6 @@ struct Heap {
 
     bool ascending;
     size_t smemb;
-    copy_fn copy;
     destructor_fn destructor;
 };
 
@@ -90,13 +89,11 @@ void __heap_heapify_down(Heap *heap) {
     }
 }
 
-Heap *heap_construct(bool ascending, size_t smemb, copy_fn copy,
-                     destructor_fn destructor) {
+Heap *heap_construct(bool ascending, size_t smemb, destructor_fn destructor) {
     Heap *heap = malloc(sizeof *heap);
 
     heap->ascending = ascending;
     heap->smemb = smemb;
-    heap->copy = copy;
     heap->destructor = destructor;
 
     heap->capacity = _HEAP_SIZINI;
@@ -123,7 +120,8 @@ void *heap_peek(Heap *heap) { return heap->data; }
 double heap_max_priority(Heap *heap) { return heap->priorities[0]; }
 
 void *heap_pop(Heap *heap) {
-    void *data = heap->copy(heap->data);
+    void *data = malloc(heap->smemb);
+    memcpy(data, heap->data, heap->smemb);
 
     if (heap->destructor != NULL)
         heap->destructor(heap->data);

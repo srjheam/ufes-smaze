@@ -8,7 +8,11 @@
 
 typedef struct Heap Heap;
 
-Heap *heap_construct(bool ascending, size_t smemb, copy_fn copy, destructor_fn destructor);
+//
+// I know that I could make it totally generic, by using an undetermined type
+// for the priorities instead of using straight forward doubles, but I'm lazy.
+//
+Heap *heap_construct(bool ascending, size_t smemb, destructor_fn destructor);
 
 void heap_push(Heap *heap, void *data, double priority);
 
