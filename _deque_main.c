@@ -38,5 +38,7 @@ int main(int argc, char const *argv[]) {
         }
     }
 
+    deque_destroy(d);
+
     return EXIT_SUCCESS;
 }
