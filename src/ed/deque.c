@@ -124,7 +124,7 @@ void __deque_growth(Deque *d) {
 
         d->capacity <<= 1;
         d->chunks = realloc(d->chunks, __SIZEOF_POINTER__ * d->capacity);
-        
+
         d->lchunk = (byte **)((byte *)d->chunks + diff);
     }
 
@@ -289,11 +289,15 @@ void *deque_iterator_forward(Deque *d, int *saveptr) {
 }
 
 void deque_destroy(Deque *d) {
-    int i = 0;
-    void *curr;
-    while ((curr = deque_iterator_forward(d, &i)))
-        if (d->destructor)
+    if (d->destructor) {
+        int i = 0;
+        void *curr;
+        while ((curr = deque_iterator_forward(d, &i)))
             d->destructor(curr);
+    }
+
+    while (d->nchunks-- > 0)
+        free(d->lchunk[d->nchunks]);
 
     free(d->chunks);
     free(d);
