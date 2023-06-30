@@ -196,7 +196,7 @@ void deque_push_front(Deque *d, void *val) {
     }
 
     if (_DEQUE_HCHUNK_COMPLEMENT_LEN(d) == 0) {
-        if (d->lchunk[d->nchunks - 1] == d->chunks[d->capacity - 1])
+        if (d->lchunk == d->chunks + (d->capacity - 1))
             __deque_growth(d);
 
         d->lchunk[d->nchunks++] = malloc(_DEQUE_CHUNKSIZ(d->smemb));
