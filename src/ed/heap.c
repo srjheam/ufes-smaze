@@ -49,7 +49,7 @@ void __heap_swap(Heap *heap, size_t i, size_t j) {
     heap->priorities[j] = pp;
 }
 
-bool __heap_heapify_high(Heap *heap, size_t i) {
+double __heap_heapify_high(Heap *heap, size_t i) {
     size_t lindx = 2 * i + 1;
     size_t rindx = 2 * i + 2;
 
