@@ -33,6 +33,22 @@ void __heap_swap(Heap *heap, size_t i, size_t j) {
     size_t lindx = 2 * i + 1;
     size_t rindx = 2 * i + 2;
 
+    int hunter = 0b01 * (lindx >= heap->len) + 0b10 * (rindx >= heap->len);
+    switch (hunter) {
+    case 0b01:
+        j = lindx;
+        break;
+    case 0b10:
+        j = rindx;
+        break;
+    case 0b11:
+        j = __heap_cmp(heap, heap->priorities[lindx], heap->priorities[rindx]) <
+                    0
+                ? lindx
+                : rindx;
+        break;
+    }
+
     double pp = heap->priorities[i];
     double pl = lindx < heap->len ? heap->priorities[lindx] : 0;
     double pr = rindx < heap->len ? heap->priorities[rindx] : 0;
@@ -48,6 +64,16 @@ void __heap_swap(Heap *heap, size_t i, size_t j) {
     heap->priorities[j] = pp;
 }
 
+/**
+ * @brief Returns the priority of the child with the highest priority; if the
+ * result is negative, the left child has the highest priority; if the result is
+ * positive, the right child has the highest priority; if the result is zero,
+ * both children have the same priority.
+ *
+ * @param heap The heap.
+ * @param i The index of the parent.
+ * @return double
+ */
 double __heap_heapify_high(Heap *heap, size_t i) {
     size_t lindx = 2 * i + 1;
     size_t rindx = 2 * i + 2;
