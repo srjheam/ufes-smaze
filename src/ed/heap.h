@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "types.h"
+#include "key_value_pair.h"
 
 typedef struct Heap Heap;
 
@@ -22,7 +23,7 @@ void *heap_peek(Heap *heap);
 
 double heap_max_priority(Heap *heap);
 
-void *heap_pop(Heap *heap);
+Kvp *heap_pop(Heap *heap);
 
 void heap_destroy(Heap *heap);
 
