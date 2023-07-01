@@ -23,7 +23,7 @@ main: main.c libed.a libsearch.a
 	gcc $(FLAGS) -o main main.c -I src/search -I src/ed -L . -led -lsearch -lm
 
 clean:
-	rm -f main libed.a libsearch.a $(LIBSEARCH_DEPS) $(LIBED_DEPS) jheam_ross_2022100890.zip
+	rm -f main libed.a libsearch.a $(LIBSEARCH_DEPS) $(LIBED_DEPS) jheam_ross_2022100890.zip $(VALGRINDOUT)
 
 zip: clean
 	zip -r jheam_ross_2022100890.zip . \
