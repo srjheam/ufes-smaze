@@ -48,10 +48,10 @@ void __heap_swap(Heap *heap, size_t i, size_t j) {
 }
 
 /**
- * @brief Returns the priority of the child with the highest priority; if the
- * result is negative, the left child has the highest priority; if the result is
- * positive, the right child has the highest priority; if the result is zero,
- * the children have less priority than the parent.
+ * @brief Returns the diff priority of the child with the highest priority; if
+ * the result is negative, the left child has the highest priority; if the
+ * result is positive, the right child has the highest priority; if the result
+ * is zero, the children have less priority than the parent.
  *
  * @param heap The heap.
  * @param i The index of the parent.
@@ -64,17 +64,15 @@ double __heap_heapify_high(Heap *heap, size_t i) {
     // I love Linux file permissions.
     int bits = 0b01 * (lindx >= heap->len) + 0b10 * (rindx >= heap->len);
     switch (bits) {
-    case 0b01:
-        return __heap_cmp(heap, heap->priorities[i], heap->priorities[rindx]) <
-                       0
-                   ? heap->priorities[rindx]
-                   : 0;
+    case 0b01:;
+        double rdiff =
+            __heap_cmp(heap, heap->priorities[rindx], heap->priorities[i]);
+        return rdiff > 0 ? rdiff : 0;
 
-    case 0b10:
-        return __heap_cmp(heap, heap->priorities[i], heap->priorities[lindx]) <
-                       0
-                   ? heap->priorities[lindx] * -1
-                   : 0;
+    case 0b10:;
+        double ldiff =
+            __heap_cmp(heap, heap->priorities[lindx], heap->priorities[i]);
+        return ldiff > 0 ? ldiff * -1 : 0;
 
     case 0b11:
         return 0;
@@ -90,16 +88,16 @@ double __heap_heapify_high(Heap *heap, size_t i) {
     int bits2 = 0b01 * (ldiff <= 0) + 0b10 * (rdiff <= 0);
     switch (bits2) {
     case 0b01:
-        return pr;
+        return rdiff;
 
     case 0b10:
-        return pl * -1;
+        return ldiff * -1;
 
     case 0b11:
         return 0;
     }
 
-    return ldiff < rdiff ? pr : pl * -1;
+    return ldiff < rdiff ? rdiff : ldiff * -1;
 }
 
 void __heap_heapify_up(Heap *heap) {
