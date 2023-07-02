@@ -19,12 +19,18 @@ int main(int argc, char const *argv[]) {
         scanf("%5s", op);
 
         if (strcmp(op, "POP") == 0) {
-            struct Celula *celula = heap_pop(h);
-            printf("%d %d\n", celula->x, celula->y);
+            Kvp *kvp = heap_pop(h);
+            double *priority = kvp_key(kvp);
+            struct Celula *celula = kvp_value(kvp);
+
+            printf("%d %d %.0f\n", celula->x, celula->y, *priority);
+
             free(celula);
+            free(priority);
+            kvp_destroy(kvp);
         } else {
             struct Celula celula;
-            double prioridade;
+            int prioridade;
             scanf("%d %d %d", &celula.x, &celula.y, &prioridade);
 
             heap_push(h, &celula, prioridade);
