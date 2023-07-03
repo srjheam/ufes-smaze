@@ -6,6 +6,8 @@
 
 typedef void (*destructor_fn)(void *);
 typedef void *(*copy_fn)(void *);
+typedef int (*cmp_fn)(void *, void *);
+typedef size_t (*hash_fn)(void *);
 
 typedef unsigned char byte;
 
