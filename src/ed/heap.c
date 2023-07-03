@@ -160,6 +160,9 @@ void *heap_peek(Heap *heap) { return heap->data; }
 double heap_max_priority(Heap *heap) { return heap->priorities[0]; }
 
 Kvp *heap_pop(Heap *heap) {
+    if (heap->len == 0)
+        exception_throw_index("heap_pop - Heap is empty");
+
     double *priority = malloc(sizeof(double));
     *priority = heap->priorities[0];
 

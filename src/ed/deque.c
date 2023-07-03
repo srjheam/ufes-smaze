@@ -209,6 +209,9 @@ void deque_push_front(Deque *d, void *val) {
 }
 
 void *deque_pop_back(Deque *d) {
+    // it should throw an error when there is no element in the deque because
+    // NULL may be a valid value when pointers are stored; but for the sake of
+    // simplicity, this will return NULL
     if (deque_size(d) == 0)
         return NULL;
 
