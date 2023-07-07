@@ -1,4 +1,5 @@
 #include "exceptions.h"
+#include "key_value_pair.h"
 
 #include "hashtable.h"
 
@@ -20,12 +21,15 @@ struct Hashtable {
     hash_fn hash;
     cmp_fn keyCmp;
 
+    copy_fn keyCopy;
+
     destructor_fn keyDestructor;
     destructor_fn valDestructor;
 };
 
 Hashtable *ht_construct(size_t initalCapacity, float loadFactor, hash_fn hash,
-                        cmp_fn keyCmp, destructor_fn keyDestructor,
+                        cmp_fn keyCmp, copy_fn keyCopy,
+                        destructor_fn keyDestructor,
                         destructor_fn valDestructor) {
     if (loadFactor <= 0 || loadFactor > 1)
         exception_throw_argument("loadFactor must be in (0, 1]");
@@ -38,6 +42,8 @@ Hashtable *ht_construct(size_t initalCapacity, float loadFactor, hash_fn hash,
 
     h->hash = hash;
     h->keyCmp = keyCmp;
+
+    h->keyCopy = keyCopy;
 
     h->keyDestructor = keyDestructor;
     h->valDestructor = valDestructor;
@@ -61,7 +67,7 @@ void ht_put(Hashtable *h, void *key, void *val) {
     }
 
     _HtNode *nnode = malloc(sizeof(_HtNode));
-    nnode->key = key;
+    nnode->key = h->keyCopy(key);
     nnode->val = val;
     nnode->next = h->buckets[iBucket];
     h->buckets[iBucket] = node;
@@ -115,5 +121,44 @@ void *ht_delete(Hashtable *h, void *key) {
     // but for the sake of simplicity, this will return NULL
     return NULL;
 }
+
+struct HashtableIterator
+{
+    Hashtable *ht;
+    size_t countBucket;
+    size_t currBucket;
+    _HtNode *curr;
+};
+
+HashtableIterator *htit_begin(Hashtable *ht) {
+    HashtableIterator *it = malloc(sizeof *it);
+
+    it->ht = ht;
+    it->countBucket = 0;
+    it->currBucket = -1;
+    it->curr = NULL;
+
+    return it;
+}
+
+Kvp *htit_next(HashtableIterator *it) {
+    if (it->curr == NULL)
+        it->countBucket++;
+
+    Kvp *kvp = NULL;
+    while (it->curr == NULL || it->curr->next == NULL)
+        it->curr = it->ht->buckets[++it->currBucket];
+
+    return kvp;
+}
+
+bool htit_is_joever(HashtableIterator *it) {
+    return it->ht->bucketsCount == 0 || (it->curr->next == NULL && it->countBucket == it->ht->bucketsCount);
+}
+
+void htit_destroy(HashtableIterator *it) {
+    free(it);
+}
+
 
 void ht_destroy(Hashtable *h);

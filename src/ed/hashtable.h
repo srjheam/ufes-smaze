@@ -8,6 +8,8 @@
 
 typedef struct Hashtable Hashtable;
 
+typedef struct HashtableIterator HashtableIterator;
+
 /**
  * @brief Initializes a new, empty instance of the Hashtable using the specified
  * initial capacity, load factor, hash code provider, and comparer.
@@ -28,7 +30,9 @@ typedef struct Hashtable Hashtable;
  * argument is currently ignored.
  */
 Hashtable *ht_construct(size_t initalCapacity, float loadFactor, hash_fn hash,
-                        cmp_fn keyCmp, destructor_fn keyDestructor, destructor_fn valDestructor);
+                        cmp_fn keyCmp, copy_fn keyCopy,
+                        destructor_fn keyDestructor,
+                        destructor_fn valDestructor);
 
 void ht_put(Hashtable *h, void *key, void *val);
 

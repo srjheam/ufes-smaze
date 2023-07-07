@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]) {
     int n;
     scanf("%d", &n);
 
-    Hashtable *h = ht_construct(n, 0.75, (hash_fn)cell_hash, (cmp_fn)cell_cmp, free, free);
+    Hashtable *h = ht_construct(19, 0.75, (hash_fn)cell_hash, (cmp_fn)cell_cmp, free, free);
     while (n--) {
         char op[5];
         scanf("%5s", op);
