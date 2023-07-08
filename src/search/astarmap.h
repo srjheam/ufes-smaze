@@ -11,7 +11,7 @@ AStarMap *astarmap_construct(size_t n, size_t m);
 
 double *astarmap_get(AStarMap *self, size_t x, size_t y);
 
-void astarmap_set(AStarMap *self, size_t x, size_t y, double distance);
+void astarmap_update(AStarMap *self, size_t x, size_t y, double distance);
 
 Kvp *astarmap_peek_shortest(AStarMap *self);
 
