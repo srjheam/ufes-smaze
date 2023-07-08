@@ -1,6 +1,6 @@
 VALGRINDOUT = valgrind-out.txt
 
-FLAGS = -Wall -Wextra -Wno-unused-result -Wno-unused-parameter -g
+FLAGS = -Wall -Wextra -Wno-unused-result -Wno-unused-parameter -g -I src/search -I src/ed -L . -led -lsearch -lm
 
 DEPS = horario.h
 OBJ = horario.o main.o
@@ -11,7 +11,7 @@ LIBSEARCH_DEPS = $(patsubst %.c,%.o,$(wildcard ./src/search/*.c))
 all: main
 
 %.o: %.c %.h
-	gcc $(FLAGS) -c -o $@ $< 
+	gcc -c -o $@ $< $(FLAGS)
 
 libed.a: $(LIBED_DEPS)
 	ar -crs libed.a $(LIBED_DEPS)
@@ -20,7 +20,7 @@ libsearch.a: $(LIBSEARCH_DEPS)
 	ar -crs libsearch.a $(LIBSEARCH_DEPS)
 
 main: main.c libed.a libsearch.a 
-	gcc $(FLAGS) -o main main.c -I src/search -I src/ed -L . -led -lsearch -lm
+	gcc -o main main.c $(FLAGS)
 
 clean:
 	rm -f main libed.a libsearch.a $(LIBSEARCH_DEPS) $(LIBED_DEPS) jheam_ross_2022100890.zip $(VALGRINDOUT)

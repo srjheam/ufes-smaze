@@ -13,6 +13,12 @@ size_t cell_hash(struct Celula *key) {
     return (key->x * 73856093) ^ (key->y * 83492791);
 }
 
+struct Celula *cell_copy(struct Celula *key) {
+    struct Celula *ncell = malloc(sizeof(struct Celula));
+    *ncell = *key;
+    return ncell;
+}
+
 int cell_cmp(struct Celula *a, struct Celula *b) {
     int dx = a->x - b->x;
     int dy = a->y - b->y;
@@ -23,31 +29,31 @@ int main(int argc, char const *argv[]) {
     int n;
     scanf("%d", &n);
 
-    Hashtable *h = ht_construct(19, 0.75, (hash_fn)cell_hash, (cmp_fn)cell_cmp, free, free);
+    Hashtable *h = ht_construct(19, 0.75, (hash_fn)cell_hash, (cmp_fn)cell_cmp, (copy_fn)cell_copy, free, free);
     while (n--) {
         char op[5];
         scanf("%5s", op);
 
         if (strcmp(op, "GET") == 0) {
-            Kvp *kvp = heap_pop(h);
-            double *priority = kvp_key(kvp);
-            struct Celula *celula = kvp_value(kvp);
+            struct Celula celula;
+            scanf("%d %d", &celula.x, &celula.y);
 
-            printf("%d %d %.0f\n", celula->x, celula->y, *priority);
+            int *p = ht_lookup(h, &celula);
 
-            free(celula);
-            free(priority);
-            kvp_destroy(kvp);
+            printf("%d\n", *p);
         } else {
             struct Celula celula;
             int prioridade;
             scanf("%d %d %d", &celula.x, &celula.y, &prioridade);
 
-            heap_push(h, &celula, prioridade);
+            int *p = malloc(sizeof(int));
+            *p = prioridade;
+            ht_put(h, &celula, p);
         }
     }
 
-    heap_destroy(h);
+    ht_clear(h);
+    ht_destroy(h);
 
     return EXIT_SUCCESS;
 }

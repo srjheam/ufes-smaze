@@ -55,6 +55,9 @@ void ht_put(Hashtable *h, void *key, void *val) {
     size_t iBucket = HASH(h, key);
 
     _HtNode *node = h->buckets[iBucket];
+    if (node == NULL)
+        h->bucketsCount++;
+
     while (node != NULL) {
         if (h->keyCmp(node->key, key) == 0) {
             if (h->valDestructor != NULL)
@@ -70,8 +73,7 @@ void ht_put(Hashtable *h, void *key, void *val) {
     nnode->key = h->keyCopy(key);
     nnode->val = val;
     nnode->next = h->buckets[iBucket];
-    h->buckets[iBucket] = node;
-    h->bucketsCount++;
+    h->buckets[iBucket] = nnode;
 }
 
 void *ht_lookup(Hashtable *h, void *key) {
@@ -144,6 +146,8 @@ HashtableIterator *htit_begin(Hashtable *ht) {
 Kvp *htit_next(HashtableIterator *it) {
     if (it->curr == NULL)
         it->countBucket++;
+    else
+        it->curr = it->curr->next;
 
     Kvp *kvp = NULL;
     while (it->curr == NULL || it->curr->next == NULL)
@@ -160,5 +164,49 @@ void htit_destroy(HashtableIterator *it) {
     free(it);
 }
 
+void ht_clear(Hashtable *h) {
+    size_t bucketc = 0;
+    for (size_t i = 0; i < h->bucketsCapacity && bucketc < h->bucketsCount; i++) {
+        _HtNode *node = h->buckets[i];
+        if (node != NULL)
+            bucketc++;
 
-void ht_destroy(Hashtable *h);
+        while (node != NULL) {
+            _HtNode *next = node->next;
+
+            if (h->keyDestructor != NULL)
+                h->keyDestructor(node->key);
+
+            if (h->valDestructor != NULL)
+                h->valDestructor(node->val);
+
+            free(node);
+            h->buckets[i] = NULL;
+            node = next;
+        }
+    }
+
+    h->bucketsCount = 0;
+}
+
+void ht_destroy(Hashtable *h) {
+    size_t bucketc = 0;
+    for (size_t i = 0; i < h->bucketsCapacity && bucketc < h->bucketsCount; i++) {
+        _HtNode *node = h->buckets[i];
+        if (node != NULL)
+            bucketc++;
+
+        while (node != NULL) {
+            _HtNode *next = node->next;
+
+            if (h->keyDestructor != NULL)
+                h->keyDestructor(node->key);
+
+            free(node);
+            node = next;
+        }
+    }
+
+    free(h->buckets);
+    free(h);
+}

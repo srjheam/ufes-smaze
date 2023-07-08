@@ -40,6 +40,8 @@ void *ht_lookup(Hashtable *h, void *key);
 
 void *ht_delete(Hashtable *h, void *key);
 
+void ht_clear(Hashtable *h);
+
 void ht_destroy(Hashtable *h);
 
 #endif

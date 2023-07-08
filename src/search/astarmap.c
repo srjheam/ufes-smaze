@@ -3,7 +3,9 @@
 #include "astarmap.h"
 
 #include "celula.h"
+#include "exceptions.h"
 #include "hashtable.h"
+#include "utils.h"
 
 #define _HEAP_SIZINI 4
 
@@ -14,8 +16,6 @@ struct AStarMap {
     double *priorities;
     size_t capacity;
     size_t len;
-
-    destructor_fn destructor;
 };
 
 /*
@@ -143,7 +143,9 @@ void __starmap_heap_push(AStarMap *map, Celula *data, double priority) {
     map->priorities[map->len] = priority;
     map->data[map->len++] = data;
 
-    ht_put(map->map, data, map->len - 1);
+    int *vi = malloc(sizeof(int));
+    *vi = map->len - 1;
+    ht_put(map->map, data, vi);
 
     __starmap_heap_heapify_up(map);
 }
@@ -156,23 +158,22 @@ Kvp *__starmap_heap_peek(AStarMap *map) {
     return kvp;
 }
 
-Kvp *__starmap_heap_pop(AStarMap *map) {
-    if (map->len == 0)
+Kvp *__starmap_heap_pop(AStarMap *astar) {
+    if (astar->len == 0)
         exception_throw_index("heap_pop - Heap is empty");
 
     double *priority = malloc(sizeof(double));
-    *priority = map->priorities[0];
+    *priority = astar->priorities[0];
 
-    Celula *data = map->celCopy(map->data[0]);
+    Kvp *kvp = kvp_construct(astar->data[0], priority);
 
-    Kvp *kvp = kvp_construct(data, priority);
+    int *val = ht_delete(astar->map, astar->data[0]);
+    free(val);
 
-    celula_destroy(map->data[0]);
+    __starmap_heap_swap(astar, 0, astar->len - 1);
+    astar->len--;
 
-    memcpy(map->data, map->data + --map->len, __SIZEOF_POINTER__);
-    map->priorities[0] = map->priorities[map->len];
-
-    __starmap_heap_heapify_down(map);
+    __starmap_heap_heapify_down(astar);
 
     return kvp;
 }
@@ -180,8 +181,10 @@ Kvp *__starmap_heap_pop(AStarMap *map) {
 AStarMap *astarmap_construct(size_t n, size_t m) {
     AStarMap *heap = malloc(sizeof *heap);
 
-    heap->map = ht_construct(n * m, .75, (hash_fn)celula_hash, (cmp_fn)celula_cmp, (copy_fn)celula_copy,
-                             (destructor_fn)celula_destroy, (destructor_fn)free);
+    heap->map = ht_construct(
+        utils_neat_ht_initial_capacity_estimator(n * m), .75,
+        (hash_fn)celula_hash, (cmp_fn)celula_cmp, (copy_fn)celula_copy,
+        (destructor_fn)celula_destroy, (destructor_fn)free);
 
     heap->capacity = _HEAP_SIZINI;
     heap->data = malloc(__SIZEOF_POINTER__ * heap->capacity);
@@ -204,25 +207,23 @@ void astarmap_set(AStarMap *self, size_t x, size_t y, double distance) {
     double *d = malloc(sizeof(double));
     *d = distance;
     ht_put(self->map, cel, d);
-    free(cel);    
+    free(cel);
 }
 
 Kvp *astarmap_peek_shortest(AStarMap *self) {
     return __starmap_heap_peek(self);
 }
 
-Kvp *astarmap_pop_shortest(AStarMap *self) {
-    return __starmap_heap_pop(self);
-}
+Kvp *astarmap_pop_shortest(AStarMap *self) { return __starmap_heap_pop(self); }
 
 void astarmap_destroy(AStarMap *self) {
+    ht_clear(self->map);
     ht_destroy(self->map);
 
-    if (self->destructor != NULL)
-        for (size_t i = 0; i < heap->len; i++)
-            heap->destructor(heap->data + heap->smemb * i);
+    for (size_t i = 0; i < self->len; i++)
+        celula_destroy(self->data[i]);
 
-    free(heap->data);
-    free(heap->priorities);
-    free(heap);
+    free(self->data);
+    free(self->priorities);
+    free(self);
 }
