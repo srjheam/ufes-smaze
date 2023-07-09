@@ -100,8 +100,11 @@ void *ht_delete(Hashtable *h, void *key) {
     _HtNode *prev = NULL;
     while (node != NULL) {
         if (h->keyCmp(node->key, key) == 0) {
-            if (prev == NULL)
+            if (prev == NULL) {
                 h->buckets[iBucket] = node->next;
+                if (h->buckets[iBucket] == NULL)
+                    h->bucketsCount--;
+            }
             else
                 prev->next = node->next;
 
@@ -110,7 +113,6 @@ void *ht_delete(Hashtable *h, void *key) {
 
             void *val = node->val;
             free(node);
-            h->bucketsCount--;
             return val;
         }
 

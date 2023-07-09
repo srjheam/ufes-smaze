@@ -1,6 +1,6 @@
 VALGRINDOUT = valgrind-out.txt
 
-FLAGS = -Wall -Wextra -Wno-unused-result -Wno-unused-parameter -g -I src/search -I src/ed -L . -led -lsearch -lm
+FLAGS = -Wall -Wextra -Wno-unused-result -Wno-unused-parameter -g -I src/search -I src/ed -L . -lsearch -led -lm
 
 DEPS = horario.h
 OBJ = horario.o main.o

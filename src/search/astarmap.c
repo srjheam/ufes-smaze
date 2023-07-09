@@ -109,10 +109,10 @@ double __starmap_heap_heapify_high(AStarMap *map, size_t i) {
 }
 
 void __starmap_heap_heapify_up(AStarMap *map, size_t i) {
-    if (map->len == 1)
+    if (map->len == 1 || i == 0)
         return;
 
-    size_t icurr = (i >> 1) - 1;
+    size_t icurr = ((i + 1) >> 1) - 1;
     while (__starmap_heap_heapify_high(map, icurr)) {
         size_t ichild =
             2 * icurr + (__starmap_heap_heapify_high(map, icurr) < 0 ? 1 : 2);
@@ -153,7 +153,7 @@ void __starmap_heap_push(AStarMap *map, Celula *data, double priority) {
 bool __starmap_heap_empty(AStarMap *map) { return map->len == 0; }
 
 Kvp *__starmap_heap_peek(AStarMap *map) {
-    Kvp *kvp = kvp_construct(map->data[0], map->priorities);
+    Kvp *kvp = kvp_construct(map->priorities, map->data[0]);
 
     return kvp;
 }
@@ -165,13 +165,19 @@ Kvp *__starmap_heap_pop(AStarMap *astar) {
     double *priority = malloc(sizeof(double));
     *priority = astar->priorities[0];
 
-    Kvp *kvp = kvp_construct(astar->data[0], priority);
+    Kvp *kvp = kvp_construct(priority, astar->data[0]);
 
     int *val = ht_delete(astar->map, astar->data[0]);
     free(val);
 
-    __starmap_heap_swap(astar, 0, astar->len - 1);
+    // place the last element in the root
     astar->len--;
+    astar->data[0] = astar->data[astar->len];
+    astar->priorities[0] = astar->priorities[astar->len];
+
+    int *vi = malloc(sizeof(int));
+    *vi = 0;
+    ht_put(astar->map, astar->data[0], vi);
 
     __starmap_heap_heapify_down(astar);
 
@@ -194,24 +200,28 @@ AStarMap *astarmap_construct(size_t n, size_t m) {
     return heap;
 }
 
-double *astarmap_get(AStarMap *self, size_t x, size_t y) {
+double astarmap_get(AStarMap *self, size_t x, size_t y) {
     Celula *cel = celula_construct(x, y);
     double *d = ht_lookup(self->map, cel);
     free(cel);
 
-    return d;
+    return *d;
 }
 
-void astarmap_update(AStarMap *self, size_t x, size_t y, double distance) {
+double astarmap_set(AStarMap *self, size_t x, size_t y, double distance) {
     Celula *cel = celula_construct(x, y);
     int *val = ht_lookup(self->map, cel);
 
     if (val == NULL) {
         __starmap_heap_push(self, cel, distance);
+        return distance;
     } else if (distance < self->priorities[*val]) {
         self->priorities[*val] = distance;
         __starmap_heap_heapify_up(self, *val);
+        return distance;
     }
+
+    return self->priorities[*val];
 }
 
 Kvp *astarmap_peek_shortest(AStarMap *self) {
