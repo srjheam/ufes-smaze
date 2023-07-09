@@ -153,6 +153,9 @@ void __starmap_heap_push(AStarMap *map, Celula *data, double priority) {
 bool __starmap_heap_empty(AStarMap *map) { return map->len == 0; }
 
 Kvp *__starmap_heap_peek(AStarMap *map) {
+    if (map->len == 0)
+        return NULL;
+
     Kvp *kvp = kvp_construct(map->priorities, map->data[0]);
 
     return kvp;
@@ -160,7 +163,7 @@ Kvp *__starmap_heap_peek(AStarMap *map) {
 
 Kvp *__starmap_heap_pop(AStarMap *astar) {
     if (astar->len == 0)
-        exception_throw_index("heap_pop - Heap is empty");
+        return NULL;
 
     double *priority = malloc(sizeof(double));
     *priority = astar->priorities[0];
@@ -170,8 +173,11 @@ Kvp *__starmap_heap_pop(AStarMap *astar) {
     int *val = ht_delete(astar->map, astar->data[0]);
     free(val);
 
-    // place the last element in the root
     astar->len--;
+    if (astar->len == 0)
+        return kvp;
+
+    // place the last element in the root
     astar->data[0] = astar->data[astar->len];
     astar->priorities[0] = astar->priorities[astar->len];
 
