@@ -4,15 +4,13 @@
 
 #include "labirinto.h"
 
-struct Labirinto
-{
+struct Labirinto {
     int n_linhas;
     int n_colunas;
     unsigned char **celulas;
 };
 
-Labirinto *labirinto_carregar(char *arquivo)
-{
+Labirinto *labirinto_carregar(char *arquivo) {
     FILE *file = fopen(arquivo, "rb");
 
     if (file == NULL)
@@ -27,9 +25,9 @@ Labirinto *labirinto_carregar(char *arquivo)
     lab->n_linhas = n_linhas;
     lab->n_colunas = n_colunas;
 
-    for (int i = 0; i < n_linhas; i++)
-    {
-        lab->celulas[i] = (unsigned char *)malloc(n_colunas * sizeof(unsigned char));
+    for (int i = 0; i < n_linhas; i++) {
+        lab->celulas[i] =
+            (unsigned char *)malloc(n_colunas * sizeof(unsigned char));
         fread(lab->celulas[i], sizeof(unsigned char), n_colunas, file);
     }
 
@@ -37,34 +35,31 @@ Labirinto *labirinto_carregar(char *arquivo)
     return lab;
 }
 
-int labirinto_n_linhas(Labirinto *l)
-{
-    return l->n_linhas;
-}
+int labirinto_n_linhas(Labirinto *l) { return l->n_linhas; }
 
-int labirinto_n_colunas(Labirinto *l)
-{
-    return l->n_colunas;
-}
+int labirinto_n_colunas(Labirinto *l) { return l->n_colunas; }
 
-void labirinto_atribuir(Labirinto *l, int linha, int coluna, TipoCelula valor)
-{
-    if (linha < 0 || linha >= l->n_linhas || coluna < 0 || coluna >= l->n_colunas)
-        exit(printf("Posição (%d, %d) inválida no labirinto com tamanho (%d, %d).\n", linha, coluna, l->n_linhas, l->n_colunas));
+void labirinto_atribuir(Labirinto *l, int linha, int coluna, TipoCelula valor) {
+    if (linha < 0 || linha >= l->n_linhas || coluna < 0 ||
+        coluna >= l->n_colunas)
+        exit(printf(
+            "Posição (%d, %d) inválida no labirinto com tamanho (%d, %d).\n",
+            linha, coluna, l->n_linhas, l->n_colunas));
 
     l->celulas[linha][coluna] = valor;
 }
 
-unsigned char labirinto_obter(Labirinto *l, int linha, int coluna)
-{
-    if (linha < 0 || linha >= l->n_linhas || coluna < 0 || coluna >= l->n_colunas)
-        exit(printf("Posição (%d, %d) inválida no labirinto com tamanho (%d, %d).\n", linha, coluna, l->n_linhas, l->n_colunas));
+TipoCelula labirinto_obter(Labirinto *l, int linha, int coluna) {
+    if (linha < 0 || linha >= l->n_linhas || coluna < 0 ||
+        coluna >= l->n_colunas)
+        exit(printf(
+            "Posição (%d, %d) inválida no labirinto com tamanho (%d, %d).\n",
+            linha, coluna, l->n_linhas, l->n_colunas));
 
     return l->celulas[linha][coluna];
 }
 
-void labirinto_destruir(Labirinto *l)
-{
+void labirinto_destruir(Labirinto *l) {
     for (int i = 0; i < l->n_linhas; i++)
         free(l->celulas[i]);
 
@@ -72,40 +67,45 @@ void labirinto_destruir(Labirinto *l)
     free(l);
 }
 
-void _labirinto_print_celula(unsigned char val)
-{
-    switch (val)
-    {
+void _labirinto_print_celula(unsigned char val) {
+
+#define ANSI_COLOR_RED "\x1b[31m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_BLUE "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN "\x1b[36m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+
+    switch (val) {
     case LIVRE:
-        printf(". ");
+        printf(". " ANSI_COLOR_RESET);
         break;
     case OCUPADO:
-        printf("# ");
+        printf("# " ANSI_COLOR_RESET);
         break;
     case FRONTEIRA:
-        printf("F ");
+        printf(ANSI_COLOR_YELLOW "F " ANSI_COLOR_RESET);
         break;
     case EXPANDIDO:
-        printf("X ");
+        printf("X " ANSI_COLOR_RESET);
         break;
     case CAMINHO:
-        printf("O ");
+        printf(ANSI_COLOR_CYAN "O " ANSI_COLOR_RESET);
         break;
     case INICIO:
-        printf("I ");
+        printf(ANSI_COLOR_GREEN "I " ANSI_COLOR_RESET);
         break;
     case FIM:
-        printf("[]");
+        printf(ANSI_COLOR_RED "[]" ANSI_COLOR_RESET);
         break;
     default:
         printf("Tipo invalido de celula.\n");
     }
 }
 
-void labirinto_print(Labirinto *l)
-{
-    for (int i = 0; i < l->n_linhas; i++)
-    {
+void labirinto_print(Labirinto *l) {
+    for (int i = 0; i < l->n_linhas; i++) {
         printf("| ");
         for (int j = 0; j < l->n_colunas; j++)
             _labirinto_print_celula(labirinto_obter(l, i, j));

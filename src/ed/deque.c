@@ -125,7 +125,7 @@ void __deque_growth(Deque *d) {
         d->capacity <<= 1;
         d->chunks = realloc(d->chunks, __SIZEOF_POINTER__ * d->capacity);
 
-        d->lchunk = (byte **)((byte *)d->chunks + diff);
+        d->lchunk = d->chunks + diff;
     }
 
     byte **nlchunk = d->chunks + ((d->capacity - d->nchunks) >> 1);
@@ -196,7 +196,7 @@ void deque_push_front(Deque *d, void *val) {
     }
 
     if (_DEQUE_HCHUNK_COMPLEMENT_LEN(d) == 0) {
-        if (d->lchunk == d->chunks + (d->capacity - 1))
+        if (d->lchunk + (d->nchunks - 1) == d->chunks + (d->capacity - 1))
             __deque_growth(d);
 
         d->lchunk[d->nchunks++] = malloc(_DEQUE_CHUNKSIZ(d->smemb));
@@ -217,8 +217,6 @@ void *deque_pop_back(Deque *d) {
 
     void *ret = malloc(d->smemb);
     memcpy(ret, d->lback, d->smemb);
-    if (d->destructor)
-        d->destructor(d->lback);
 
     if (_DEQUE_LCHUNK_LEN(d) == 1 || d->lback == d->hfront) {
         free(d->lchunk[0]);
@@ -227,6 +225,10 @@ void *deque_pop_back(Deque *d) {
         if (d->nchunks > 0) {
             d->lchunk++;
             d->lback = d->lchunk[0];
+        }
+        else {
+            d->lback = NULL;
+            d->hfront = NULL;
         }
     } else
         d->lback += d->smemb;
@@ -240,8 +242,6 @@ void *deque_pop_front(Deque *d) {
 
     void *ret = malloc(d->smemb);
     memcpy(ret, d->hfront, d->smemb);
-    if (d->destructor)
-        d->destructor(d->hfront);
 
     if (_DEQUE_HCHUNK_LEN(d) == 1 || d->lback == d->hfront) {
         free(d->lchunk[d->nchunks - 1]);
@@ -250,6 +250,10 @@ void *deque_pop_front(Deque *d) {
         if (d->nchunks > 0)
             d->hfront = d->lchunk[d->nchunks - 1] +
                         (_DEQUE_CHUNKSIZ(d->smemb) - d->smemb);
+        else {
+            d->lback = NULL;
+            d->hfront = NULL;
+        }
     } else
         d->hfront -= d->smemb;
 

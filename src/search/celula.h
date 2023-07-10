@@ -15,6 +15,14 @@ void celula_set_x(Celula *self, size_t x);
 
 void celula_set_y(Celula *self, size_t y);
 
+Celula *celula_get_parent(Celula *self);
+
+void celula_set_parent(Celula *self, Celula *parent);
+
+double celula_get_accCost(Celula *self);
+
+void celula_set_accCost(Celula *self, double accCost);
+
 size_t celula_hash(Celula *key);
 
 int celula_cmp(Celula *a, Celula *b);
