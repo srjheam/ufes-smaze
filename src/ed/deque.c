@@ -265,7 +265,7 @@ int deque_size(Deque *d) {
         return 0;
 
     return d->nchunks * _DEQUE_CHUNKLEN(d->smemb) -
-           (_DEQUE_LCHUNK_COMPLEMENT_LEN(d) - _DEQUE_HCHUNK_COMPLEMENT_LEN(d));
+           (_DEQUE_LCHUNK_COMPLEMENT_LEN(d) + _DEQUE_HCHUNK_COMPLEMENT_LEN(d));
 }
 
 void *deque_get(Deque *d, int idx) {

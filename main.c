@@ -24,8 +24,7 @@ void print_result(ResultData *result) {
 
     int n = deque_size(caminho);
     for (int i = n - 1; i >= 0; i--)
-            printf("%ld %ld\n", celula_get_x(*(Celula **)deque_get(caminho, i)),
-               celula_get_y(*(Celula **)deque_get(caminho, i)));
+            printf("%ld %ld\n", celula_get_y(*(Celula **)deque_get(caminho, i)), celula_get_x(*(Celula **)deque_get(caminho, i)));
 
     printf("%.2lf\n", celula_get_accCost(result->tail));
     printf("%d\n", deque_size(caminho));

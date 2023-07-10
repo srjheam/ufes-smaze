@@ -49,8 +49,116 @@ ResultData a_star(Labirinto *l, Celula *inicio, Celula *fim) {
 }
 
 ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
-    // TODO!
-    return _default_result();
+    ResultData result = _default_result();
+
+    Queue *frontier = queue_construct(__SIZEOF_POINTER__, NULL);
+
+    queue_push(frontier, &inicio);
+
+    while (!queue_empty(frontier)) {
+        result.nos_expandidos++;
+        Celula **popc = queue_pop(frontier);
+        Celula *current = *popc;
+        free(popc);
+        if (celula_get_parent(current) != NULL) {
+            celula_set_accCost(
+                current, celula_get_accCost(celula_get_parent(current)) +
+                             _distance(current, celula_get_parent(current)));
+        }
+
+        if (celula_get_x(current) == celula_get_x(fim) &&
+            celula_get_y(current) == celula_get_y(fim)) {
+            result.tail = current;
+            result.sucesso = 1;
+            break;
+        }
+
+        labirinto_atribuir(l, celula_get_y(current), celula_get_x(current),
+                           CAMINHO);
+
+        //
+        // 8 1 2
+        // 7 O 3
+        // 6 5 4
+        //
+
+        // 1
+        if (_is_free(l, celula_get_x(current), celula_get_y(current) - 1)) {
+            Celula *c = celula_construct(celula_get_x(current),
+                                         celula_get_y(current) - 1);
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 2
+        if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current) - 1)) {
+            Celula *c = celula_construct(celula_get_x(current) + 1,
+                                         celula_get_y(current) - 1);
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 3
+        if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current))) {
+            Celula *c = celula_construct(celula_get_x(current) + 1,
+                                         celula_get_y(current));
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 4
+        if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current) + 1)) {
+            Celula *c = celula_construct(celula_get_x(current) + 1,
+                                         celula_get_y(current) + 1);
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 5
+        if (_is_free(l, celula_get_x(current), celula_get_y(current) + 1)) {
+            Celula *c = celula_construct(celula_get_x(current),
+                                         celula_get_y(current) + 1);
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 6
+        if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current) + 1)) {
+            Celula *c = celula_construct(celula_get_x(current) - 1,
+                                         celula_get_y(current) + 1);
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 7
+        if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current))) {
+            Celula *c = celula_construct(celula_get_x(current) - 1,
+                                         celula_get_y(current));
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // 8
+        if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current) - 1)) {
+            Celula *c = celula_construct(celula_get_x(current) - 1,
+                                         celula_get_y(current) - 1);
+            celula_set_parent(c, current);
+            queue_push(frontier, &c);
+            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+        }
+
+        // labirinto_print(l);
+        // printf("\n");
+    }
+
+    return result;
 }
 
 ResultData depth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
