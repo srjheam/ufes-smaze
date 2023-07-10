@@ -14,17 +14,19 @@ double astarmap_get(AStarMap *self, size_t x, size_t y);
 
 /**
  * @brief Set the distance of a node in the map.
- * 
+ *
  * @param self The map.
  * @param x Map node x coordinate.
  * @param y Map node y coordinate.
- * @param distance The distance to set. 
+ * @param distance The distance to set.
  */
-double astarmap_set(AStarMap *self, size_t x, size_t y, double distance);
+double astarmap_set(AStarMap *self, Celula *cell, double distance);
 
 Kvp *astarmap_peek_shortest(AStarMap *self);
 
 Kvp *astarmap_pop_shortest(AStarMap *self);
+
+size_t astarmap_len(AStarMap *self);
 
 void astarmap_destroy(AStarMap *self);
 

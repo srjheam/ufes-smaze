@@ -214,12 +214,11 @@ double astarmap_get(AStarMap *self, size_t x, size_t y) {
     return *d;
 }
 
-double astarmap_set(AStarMap *self, size_t x, size_t y, double distance) {
-    Celula *cel = celula_construct(x, y);
-    int *val = ht_lookup(self->map, cel);
+double astarmap_set(AStarMap *self, Celula *cell, double distance) {
+    int *val = ht_lookup(self->map, cell);
 
     if (val == NULL) {
-        __starmap_heap_push(self, cel, distance);
+        __starmap_heap_push(self, cell, distance);
         return distance;
     } else if (distance < self->priorities[*val]) {
         self->priorities[*val] = distance;
@@ -235,6 +234,10 @@ Kvp *astarmap_peek_shortest(AStarMap *self) {
 }
 
 Kvp *astarmap_pop_shortest(AStarMap *self) { return __starmap_heap_pop(self); }
+
+size_t astarmap_len(AStarMap *self) {
+    return self->len;
+}
 
 void astarmap_destroy(AStarMap *self) {
     ht_clear(self->map);

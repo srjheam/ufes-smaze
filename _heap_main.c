@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
             scanf("%ld %ld %d", &x, &y, &prioridade);
 
             Celula *c = celula_construct(x, y);
-            astarmap_set(h, celula_get_x(c), celula_get_y(c), prioridade);
+            astarmap_set(h, c, prioridade);
             celula_destroy(c);
         }
     }
