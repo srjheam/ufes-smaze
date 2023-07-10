@@ -163,7 +163,5 @@ ResultData depth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         // printf("\n");
     }
 
-    stack_destroy(frontier);
-
     return result;
 }
