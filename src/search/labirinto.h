@@ -19,7 +19,7 @@ Labirinto *labirinto_carregar(char *arquivo);
 int labirinto_n_linhas(Labirinto *l);
 int labirinto_n_colunas(Labirinto *l);
 void labirinto_atribuir(Labirinto *l, int linha, int coluna, TipoCelula valor);
-unsigned char labirinto_obter(Labirinto *l, int linha, int coluna);
+TipoCelula labirinto_obter(Labirinto *l, int linha, int coluna);
 void labirinto_print(Labirinto *l);
 void labirinto_destruir(Labirinto *l);
 

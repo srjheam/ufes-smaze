@@ -2,26 +2,52 @@
 #ifndef _DEQUE_H_
 #define _DEQUE_H_
 
+#include "stdlib.h"
+
+#include "types.h"
+
 typedef struct Deque Deque;
 
-// criacao do deque
-Deque *deque_construct(void);
+Deque *deque_construct(size_t smemb, destructor_fn destructor);
 
-// funcoes para insercao na direita e esquerda (devem ser feitas em O(1), com eventual realloc)
+/**
+ * @brief Pushes an element to the back of the deque.
+ * 
+ * @param d The deque to push to.
+ * @param val The address to the value to push. If it is a pointer, its plain address will be pushed.
+ */
 void deque_push_back(Deque *d, void *val);
+
+/**
+ * @brief Pushes an element to the front of the deque.
+ * 
+ * @param d The deque to push to.
+ * @param val The address to the value to push. If it is a pointer, its plain address will be pushed.
+ */
 void deque_push_front(Deque *d, void *val);
 
-// funcoes para remocao na direita e esquerda (devem ser feitas em O(1))
+/**
+ * @brief Pops an element from the back of the deque.
+ * 
+ * @param d The deque to pop from.
+ * @return void* The popped value. A heap allocated address to the value is returned and shall be freed by the user.
+ */
 void *deque_pop_back(Deque *d);
+
+/**
+ * @brief Pops an element from the front of the deque.
+ * 
+ * @param d The deque to pop from.
+ * @return void* The popped value. A heap allocated address to the value is returned and shall be freed by the user.
+ */
 void *deque_pop_front(Deque *d);
 
-// numero de elementos
 int deque_size(Deque *d);
 
-// obtem o i-esimo elemento
 void *deque_get(Deque *d, int idx);
 
-// libera o espaco alocado para o deque
+void *deque_iterator_forward(Deque *d, int *saveptr);
+
 void deque_destroy(Deque *d);
 
 #endif

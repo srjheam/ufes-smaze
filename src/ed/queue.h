@@ -6,10 +6,14 @@
 
 typedef struct Queue Queue;
 
-Queue *queue_construct();
+Queue *queue_construct(size_t smemb, destructor_fn destructor);
+
 void queue_push(Queue *queue, void *data);
+
 bool queue_empty(Queue *queue);
+
 void *queue_pop(Queue *queue);
+
 void queue_destroy(Queue *queue);
 
 #endif
