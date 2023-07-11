@@ -14,21 +14,17 @@ void print_result(ResultData *result) {
         return;
     }
 
-    Deque *caminho = deque_construct(__SIZEOF_POINTER__, NULL);
-
-    Celula *curr = result->tail;
-    while (curr != NULL) {
-        deque_push_front(caminho, &curr);
-        curr = celula_get_parent(curr);
-    }
-
-    int n = deque_size(caminho);
+    int n = deque_size(result->caminho);
     for (int i = n - 1; i >= 0; i--)
-            printf("%ld %ld\n", celula_get_y(*(Celula **)deque_get(caminho, i)), celula_get_x(*(Celula **)deque_get(caminho, i)));
+        printf("%ld %ld\n",
+               celula_get_y(*(Celula **)deque_get(result->caminho, i)),
+               celula_get_x(*(Celula **)deque_get(result->caminho, i)));
 
-    printf("%.2lf\n", celula_get_accCost(result->tail));
-    printf("%d\n", deque_size(caminho));
+    printf("%.2lf\n", result->custo_caminho);
+    printf("%d\n", result->tamanho_caminho);
     printf("%d\n", result->nos_expandidos);
+
+    deque_destroy(result->caminho);
 }
 
 int main() {
@@ -58,6 +54,9 @@ int main() {
         printf("Algoritmo desconhecido: %s\n", algoritmo);
         exit(1);
     }
+
+    celula_destroy(inicio);
+    celula_destroy(fim);
 
     print_result(&result);
 

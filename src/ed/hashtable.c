@@ -192,23 +192,7 @@ void ht_clear(Hashtable *h) {
 }
 
 void ht_destroy(Hashtable *h) {
-    size_t bucketc = 0;
-    for (size_t i = 0; i < h->bucketsCapacity && bucketc < h->bucketsCount; i++) {
-        _HtNode *node = h->buckets[i];
-        if (node != NULL)
-            bucketc++;
-
-        while (node != NULL) {
-            _HtNode *next = node->next;
-
-            if (h->keyDestructor != NULL)
-                h->keyDestructor(node->key);
-
-            free(node);
-            node = next;
-        }
-    }
-
+    ht_clear(h);
     free(h->buckets);
     free(h);
 }

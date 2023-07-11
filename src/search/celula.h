@@ -29,6 +29,10 @@ int celula_cmp(Celula *a, Celula *b);
 
 Celula *celula_copy(Celula *self);
 
+Celula *celula_dcopy(Celula *self);
+
 void celula_destroy(Celula *self);
+
+void celula_ddestroy(Celula *self);
 
 #endif

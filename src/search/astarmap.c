@@ -239,11 +239,10 @@ Kvp *astarmap_pop_shortest(AStarMap *self) { return __starmap_heap_pop(self); }
 size_t astarmap_len(AStarMap *self) { return self->len; }
 
 void astarmap_destroy(AStarMap *self) {
-    ht_clear(self->map);
     ht_destroy(self->map);
 
     for (size_t i = 0; i < self->len; i++)
-        celula_destroy(self->data[i]);
+        celula_ddestroy(self->data[i]);
 
     free(self->data);
     free(self->priorities);

@@ -53,4 +53,24 @@ Celula *celula_copy(Celula *self) {
     return nc;
 }
 
+Celula *celula_dcopy(Celula *self) {
+    if (self == NULL)
+        return NULL;
+
+    Celula *nc = celula_construct(celula_get_x(self), celula_get_y(self));
+
+    celula_set_parent(nc, celula_dcopy(celula_get_parent(self)));
+    celula_set_accCost(nc, celula_get_accCost(self));
+
+    return nc;
+}
+
 void celula_destroy(Celula *self) { free(self); }
+
+void celula_ddestroy(Celula *self) {
+    if (self == NULL)
+        return;
+
+    celula_ddestroy(celula_get_parent(self));
+    free(self);
+}

@@ -9,9 +9,10 @@
 
 typedef struct
 {
-    Celula *tail;
+    Deque *caminho;
     int tamanho_caminho;
     int nos_expandidos;
+    double custo_caminho;
     int sucesso;
 } ResultData;
 

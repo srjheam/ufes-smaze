@@ -300,7 +300,7 @@ void deque_destroy(Deque *d) {
         int i = 0;
         void *curr;
         while ((curr = deque_iterator_forward(d, &i)))
-            d->destructor(curr);
+            d->destructor(*(void **)curr);
     }
 
     while (d->nchunks-- > 0)
