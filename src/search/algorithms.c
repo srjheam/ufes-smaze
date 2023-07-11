@@ -32,8 +32,21 @@ int _is_astar_free(Labirinto *l, size_t x, size_t y) {
 }
 
 double _distance(Celula *a, Celula *b) {
-    return sqrt(pow(celula_get_x(a) - celula_get_x(b), 2) +
-                pow(celula_get_y(a) - celula_get_y(b), 2));
+    // meu deus eu não sei o porque, mas ela simplesmente não funciona sem isso
+    // aqui
+
+    double xa = celula_get_x(a);
+    double ya = celula_get_y(a);
+    double xb = celula_get_x(b);
+    double yb = celula_get_y(b);
+    double dx = xa - xb;
+    double dy = ya - yb;
+    double b2 = pow(dx, 2);
+    double c2 = pow(dy, 2);
+    double a2 = b2 + c2;
+    double rt = sqrt(a2);
+
+    return rt;
 }
 
 ResultData _default_result() {
@@ -53,10 +66,11 @@ ResultData a_star(Labirinto *l, Celula *inicio, Celula *fim) {
         astarmap_construct(labirinto_n_linhas(l), labirinto_n_colunas(l));
 
     astarmap_set(map, inicio, 0);
+    celula_set_accCost(inicio, 0);
 
     while (astarmap_len(map) > 0) {
-        labirinto_print(l);
-        printf("\n");
+        //labirinto_print(l);
+        //printf("\n");
 
         result.nos_expandidos++;
         Kvp *kvp = astarmap_pop_shortest(map);
@@ -80,131 +94,131 @@ ResultData a_star(Labirinto *l, Celula *inicio, Celula *fim) {
         //
 
         // 1
-        if (_is_free(l, celula_get_x(current), celula_get_y(current) - 1)) {
+        if (_is_astar_free(l, celula_get_x(current), celula_get_y(current) - 1)) {
             Celula *c = celula_construct(celula_get_x(current),
                                          celula_get_y(current) - 1);
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
 
         // 2
-        if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current) - 1)) {
+        if (_is_astar_free(l, celula_get_x(current) + 1, celula_get_y(current) - 1)) {
             Celula *c = celula_construct(celula_get_x(current) + 1,
                                          celula_get_y(current) - 1);
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
 
         // 3
-        if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current))) {
+        if (_is_astar_free(l, celula_get_x(current) + 1, celula_get_y(current))) {
             Celula *c = celula_construct(celula_get_x(current) + 1,
                                          celula_get_y(current));
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
-            labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+             celula_destroy(c);
         }
 
         // 4
-        if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current) + 1)) {
+        if (_is_astar_free(l, celula_get_x(current) + 1, celula_get_y(current) + 1)) {
             Celula *c = celula_construct(celula_get_x(current) + 1,
                                          celula_get_y(current) + 1);
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
 
         // 5
-        if (_is_free(l, celula_get_x(current), celula_get_y(current) + 1)) {
+        if (_is_astar_free(l, celula_get_x(current), celula_get_y(current) + 1)) {
             Celula *c = celula_construct(celula_get_x(current),
                                          celula_get_y(current) + 1);
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
 
         // 6
-        if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current) + 1)) {
+        if (_is_astar_free(l, celula_get_x(current) - 1, celula_get_y(current) + 1)) {
             Celula *c = celula_construct(celula_get_x(current) - 1,
                                          celula_get_y(current) + 1);
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
 
         // 7
-        if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current))) {
+        if (_is_astar_free(l, celula_get_x(current) - 1, celula_get_y(current))) {
             Celula *c = celula_construct(celula_get_x(current) - 1,
                                          celula_get_y(current));
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
 
         // 8
-        if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current) - 1)) {
+        if (_is_astar_free(l, celula_get_x(current) - 1, celula_get_y(current) - 1)) {
             Celula *c = celula_construct(celula_get_x(current) - 1,
                                          celula_get_y(current) - 1);
-            double f1 = _distance(current, c);
-            double f2 = _distance(c, fim);
-            double f = _distance(current, c) + _distance(c, fim);
-            double r = astarmap_set(map, c, f);
-            if (f == r) {
-                celula_set_accCost(c, celula_get_accCost(current) +
-                                          _distance(current, c));
-                celula_set_parent(c, current);
+            double gp = celula_get_accCost(current);
+            double hc = _distance(c, fim);
+            double f = gp + _distance(current, c) + hc;
+            Celula *cell = astarmap_set(map, c, f);
+            if (cell) {
+                celula_set_accCost(cell, gp + _distance(current, c)); // g
+                celula_set_parent(cell, current);
             }
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
+            celula_destroy(c);
         }
     }
 

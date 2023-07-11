@@ -2,6 +2,7 @@
 #define _ASTAR_MAP_
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "celula.h"
 #include "key_value_pair.h"
@@ -19,8 +20,9 @@ double astarmap_get(AStarMap *self, size_t x, size_t y);
  * @param x Map node x coordinate.
  * @param y Map node y coordinate.
  * @param distance The distance to set.
+ * @return true If the node was set.
  */
-double astarmap_set(AStarMap *self, Celula *cell, double distance);
+Celula *astarmap_set(AStarMap *self, Celula *cell, double distance);
 
 Kvp *astarmap_peek_shortest(AStarMap *self);
 
