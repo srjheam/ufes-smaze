@@ -274,9 +274,10 @@ ResultData a_star(Labirinto *l, Celula *inicio, Celula *fim) {
 ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
     ResultData result = _default_result();
 
-    Queue *frontier = queue_construct(__SIZEOF_POINTER__, NULL);
+    Queue *frontier = queue_construct(__SIZEOF_POINTER__, (destructor_fn)celula_ddestroy);
 
-    queue_push(frontier, &inicio);
+    Celula *current = celula_copy(inicio);
+    queue_push(frontier, &current);
 
     while (!queue_empty(frontier)) {
         result.nos_expandidos++;
@@ -291,7 +292,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
 
         if (celula_get_x(current) == celula_get_x(fim) &&
             celula_get_y(current) == celula_get_y(fim)) {
-            Deque *caminho = deque_construct(__SIZEOF_POINTER__, NULL);
+            Deque *caminho = deque_construct(__SIZEOF_POINTER__, (destructor_fn)celula_destroy);
 
             Celula *curr = current;
             while (curr != NULL) {
@@ -304,6 +305,8 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
             result.tamanho_caminho = deque_size(caminho);
             result.custo_caminho = celula_get_accCost(current);
             result.sucesso = 1;
+
+            celula_ddestroy(current);
 
             break;
         }
@@ -321,7 +324,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current), celula_get_y(current) - 1)) {
             Celula *c = celula_construct(celula_get_x(current),
                                          celula_get_y(current) - 1);
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -330,7 +333,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current) - 1)) {
             Celula *c = celula_construct(celula_get_x(current) + 1,
                                          celula_get_y(current) - 1);
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -339,7 +342,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current))) {
             Celula *c = celula_construct(celula_get_x(current) + 1,
                                          celula_get_y(current));
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -348,7 +351,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current) + 1, celula_get_y(current) + 1)) {
             Celula *c = celula_construct(celula_get_x(current) + 1,
                                          celula_get_y(current) + 1);
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -357,7 +360,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current), celula_get_y(current) + 1)) {
             Celula *c = celula_construct(celula_get_x(current),
                                          celula_get_y(current) + 1);
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -366,7 +369,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current) + 1)) {
             Celula *c = celula_construct(celula_get_x(current) - 1,
                                          celula_get_y(current) + 1);
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -375,7 +378,7 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current))) {
             Celula *c = celula_construct(celula_get_x(current) - 1,
                                          celula_get_y(current));
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
@@ -384,10 +387,12 @@ ResultData breadth_first_search(Labirinto *l, Celula *inicio, Celula *fim) {
         if (_is_free(l, celula_get_x(current) - 1, celula_get_y(current) - 1)) {
             Celula *c = celula_construct(celula_get_x(current) - 1,
                                          celula_get_y(current) - 1);
-            celula_set_parent(c, current);
+            celula_set_parent(c, celula_dcopy(current));
             queue_push(frontier, &c);
             labirinto_atribuir(l, celula_get_y(c), celula_get_x(c), FRONTEIRA);
         }
+
+        celula_ddestroy(current);
 
         // labirinto_print(l);
         // printf("\n");
